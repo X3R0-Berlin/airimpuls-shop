@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build static export
+        run: npm run build
+
+      - name: Verify static export
+        run: |
+          test -d out || (echo "ERROR: out/ directory not found" && exit 1)
+          test -f out/index.html || (echo "ERROR: out/index.html not found" && exit 1)
+          test -d out/product/vitair || (echo "ERROR: product pages not generated" && exit 1)
+          echo "Static export OK: $(find out -name '*.html' | wc -l) HTML files"
+
+      - name: Build products.json
+        run: node scripts/build-products-json.js
+
+      - name: Verify PHP API files
+        run: |
+          test -f php/api/checkout.php || (echo "ERROR: checkout.php not found" && exit 1)
+          test -f php/api/webhook.php || (echo "ERROR: webhook.php not found" && exit 1)
+          test -f php/api/newsletter.php || (echo "ERROR: newsletter.php not found" && exit 1)
+          test -f php/api/contact.php || (echo "ERROR: contact.php not found" && exit 1)
+          test -f php/api/products.json || (echo "ERROR: products.json not built" && exit 1)
+          echo "PHP API files OK"

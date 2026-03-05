@@ -1,0 +1,48 @@
+services:
+  airimpuls-web:
+    build:
+      context: .
+      target: runner
+    image: airimpuls-shop:latest
+    container_name: airimpuls-web
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    volumes:
+      - db-data:/app/data
+    restart: unless-stopped
+    networks:
+      - matrix-net
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    profiles:
+      - prod
+
+  app-dev:
+    build:
+      context: .
+      target: deps
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    profiles:
+      - dev
+
+volumes:
+  db-data:
+
+networks:
+  matrix-net:
+    external: true
+    name: matrix-net
