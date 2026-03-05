@@ -36,15 +36,6 @@ export const metadata: Metadata = {
   },
   description: brand.seo.defaultDescription,
   metadataBase: new URL(siteUrl),
-  icons: {
-    icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "32x32" },
-    ],
-    apple: [
-      { url: "/images/Airimpuls_Logo_Icon.svg", type: "image/svg+xml" },
-    ],
-  },
   openGraph: {
     type: "website",
     locale: "de_DE",
